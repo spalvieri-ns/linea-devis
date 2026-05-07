@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Linéa Devis">
+<meta name="theme-color" content="#1B3D6F">
+<title>Linéa — Devis Terrain</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bl:#1B3D6F;--bl2:#2B5BA0;--bll:#EAF0F8;--blll:#F0F5FB;
+  --wh:#fff;--bg:#F2F4F8;--tx:#111827;--mu:#6B7280;--br:#DDE3EE;
+  --r:14px;--rs:8px;--grn:#16A34A;--grn-l:#DCFCE7;
+  --shadow:0 2px 8px rgba(27,61,111,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh}
+
+/* HEADER */
+.hdr{background:var(--bl);padding:13px 16px 11px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.25)}
+.hdr-inner{display:flex;align-items:center;justify-content:space-between}
+.hdr-logo{color:#fff;font-size:16px;font-weight:700;letter-spacing:.06em}
+.hdr-logo span{font-weight:300;opacity:.7}
+.hdr-agence{font-size:11px;color:rgba(255,255,255,.5);font-weight:400;margin-left:6px}
+.steps{display:flex;gap:4px;align-items:center}
+.stp{height:3px;border-radius:2px;background:rgba(255,255,255,.2);transition:all .3s;width:16px}
+.stp.cur{background:#fff;width:28px}
+.stp.done{background:rgba(255,255,255,.5)}
+.hdr-lbl{font-size:11px;color:rgba(255,255,255,.45);margin-top:5px;font-weight:300}
+
+/* LAYOUT */
+.content{padding:16px 14px 110px;max-width:560px;margin:0 auto}
+.step{display:none}.step.on{display:block}
+.stit{font-size:20px;font-weight:600;color:var(--bl);margin-bottom:3px}
+.ssub{font-size:12px;color:var(--mu);margin-bottom:16px;font-weight:300;line-height:1.5}
+
+/* CARDS */
+.card{background:var(--wh);border-radius:var(--r);border:1px solid var(--br);padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
+.ctit{font-size:10px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--br)}
+.f{margin-bottom:12px}.f:last-child{margin-bottom:0}
+.f label{font-size:11px;font-weight:500;color:var(--mu);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em}
+.f input,.f select,.f textarea{width:100%;padding:10px 12px;border:1.5px solid var(--br);border-radius:var(--rs);font-size:14px;font-family:'Poppins',sans-serif;background:var(--wh);color:var(--tx);transition:border .15s;-webkit-appearance:none}
+.f input:focus,.f select:focus,.f textarea:focus{outline:none;border-color:var(--bl)}
+.f textarea{resize:none;line-height:1.5}
+.f-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.f-3 label{font-size:10px}
+
+/* TYPE DE BIEN — gros boutons illustrés */
+.type-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tbtn{padding:16px 10px 14px;border:2px solid var(--br);border-radius:var(--r);text-align:center;cursor:pointer;background:var(--wh);color:var(--tx);transition:all .18s;position:relative;overflow:hidden}
+.tbtn .ico{font-size:32px;display:block;margin-bottom:6px;line-height:1}
+.tbtn .lbl{font-size:13px;font-weight:600;display:block;color:var(--tx)}
+.tbtn .sub{font-size:10px;font-weight:300;color:var(--mu);display:block;margin-top:2px}
+.tbtn.on{border-color:var(--bl);background:var(--bll)}
+.tbtn.on .lbl{color:var(--bl)}
+.tbtn.on .sub{color:var(--bl2)}
+.tbtn.on::after{content:'✓';position:absolute;top:8px;right:10px;font-size:14px;font-weight:700;color:var(--bl)}
+
+/* ZONES */
+.zone{background:var(--wh);border-radius:var(--r);border:1px solid var(--br);margin-bottom:10px;box-shadow:var(--shadow);overflow:hidden;transition:border .2s}
+.zone.active{border-color:var(--bl)}
+.zone-hdr{display:flex;align-items:center;gap:10px;padding:13px 14px;cursor:pointer;user-select:none}
+.zchk{width:22px;height:22px;border-radius:6px;border:2px solid var(--br);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.zchk.on{background:var(--bl);border-color:var(--bl)}
+.zchk.on::after{content:'✓';color:#fff;font-size:13px;font-weight:700}
+.zico{font-size:20px;flex-shrink:0}
+.zinfo{flex:1}
+.zname{font-size:14px;font-weight:600;color:var(--tx);display:block}
+.zsub{font-size:11px;color:var(--mu);font-weight:300;display:block;margin-top:1px}
+.zarrow{color:var(--mu);font-size:16px;transition:transform .2s;flex-shrink:0}
+.zarrow.open{transform:rotate(180deg)}
+.zbody{display:none;padding:0 14px 14px;border-top:1px solid var(--br)}
+.zbody.on{display:block}
+
+/* DURÉE PAR ZONE */
+.zdur-section{padding:10px 0 6px}
+.zdur-lbl{font-size:11px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.dur-btns{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px}
+.db{padding:6px 10px;border:1.5px solid var(--br);border-radius:var(--rs);font-size:12px;font-weight:500;cursor:pointer;background:var(--wh);color:var(--tx);transition:all .12s;font-family:'Poppins',sans-serif}
+.db.on{border-color:var(--bl);background:var(--bll);color:var(--bl);font-weight:600}
+.db.none-btn{color:var(--mu);font-style:italic}
+.db.none-btn.on{border-color:var(--mu);background:#F9FAFB;color:var(--mu)}
+
+/* FREQ PAR ZONE */
+.zfreq-section{padding:6px 0 4px;display:flex;align-items:center;gap:10px;border-top:1px solid #F3F4F6;margin-top:4px}
+.zfreq-lbl{font-size:11px;font-weight:500;color:var(--mu);flex-shrink:0}
+.zfreq-section select{flex:1;padding:7px 10px;border:1.5px solid var(--br);border-radius:var(--rs);font-size:13px;font-family:'Poppins',sans-serif;background:var(--wh);color:var(--tx);-webkit-appearance:none}
+
+/* PRESTATIONS DANS ZONE */
+.prest-toggle{font-size:11px;color:var(--bl2);cursor:pointer;padding:8px 0 4px;display:flex;align-items:center;gap:5px;font-weight:500;border:none;background:none;font-family:'Poppins',sans-serif;width:100%}
+.prest-pane{display:none;background:var(--blll);border-radius:var(--rs);padding:10px 12px;margin-top:4px}
+.prest-pane.on{display:block}
+.pit{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid #E9EEF5}
+.pit:last-child{border-bottom:none}
+.pchk{width:16px;height:16px;border-radius:3px;border:2px solid var(--br);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;cursor:pointer;transition:all .12s;background:var(--wh)}
+.pchk.on{background:var(--bl);border-color:var(--bl)}
+.pchk.on::after{content:'✓';color:#fff;font-size:9px;font-weight:700}
+.pname{font-size:12px;color:var(--tx);flex:1;line-height:1.4;cursor:pointer}
+.pfreq{font-size:11px;padding:3px 6px;border:1.5px solid var(--br);border-radius:var(--rs);font-family:'Poppins',sans-serif;background:var(--wh);color:var(--mu);-webkit-appearance:none;max-width:115px;flex-shrink:0}
+.add-prest{font-size:11px;color:var(--mu);cursor:pointer;padding:6px 0 2px;display:flex;align-items:center;gap:4px;background:none;border:none;font-family:'Poppins',sans-serif;width:100%}
+
+/* AJOUT ZONE LIBRE */
+.add-zone{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--bl);padding:14px 16px;background:var(--wh);border-radius:var(--r);border:2px dashed var(--br);cursor:pointer;width:100%;font-family:'Poppins',sans-serif;margin-bottom:10px;transition:border .15s}
+.add-zone:hover{border-color:var(--bl)}
+
+/* TAUX */
+.taux-blk{margin-bottom:16px}.taux-blk:last-child{margin-bottom:0}
+.taux-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.taux-lbl{font-size:11px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.06em}
+.taux-tag{font-size:10px;color:var(--bl2);background:var(--bll);padding:2px 8px;border-radius:99px;font-weight:500}
+.taux-big{display:flex;align-items:baseline;gap:4px;margin-bottom:8px}
+.tval{font-size:42px;font-weight:700;color:var(--bl);line-height:1}
+.tunit{font-size:14px;color:var(--mu)}
+input[type=range]{width:100%;height:6px;-webkit-appearance:none;background:var(--br);border-radius:3px;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:var(--bl);cursor:pointer;border:3px solid #fff;box-shadow:0 2px 6px rgba(27,61,111,.3)}
+.trange{display:flex;justify-content:space-between;font-size:10px;color:var(--mu);margin-top:4px}
+.tsep{height:1px;background:var(--br);margin:16px 0}
+
+/* CONSOMMABLES */
+.ctable{width:100%;border-collapse:collapse;margin-top:6px}
+.ctable th{font-size:10px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.06em;padding:6px 8px;text-align:left;border-bottom:1.5px solid var(--br)}
+.ctable th:last-child{text-align:center;width:70px}
+.ctable td{padding:9px 8px;border-bottom:1px solid #F3F4F6;font-size:13px}
+.ctable tr:last-child td{border-bottom:none}
+.cqty{width:64px;padding:6px;border:1.5px solid var(--br);border-radius:var(--rs);font-size:14px;font-family:'Poppins',sans-serif;text-align:center;background:var(--wh);color:var(--tx)}
+.cqty:focus{outline:none;border-color:var(--bl)}
+
+/* RECAP */
+.rsec{margin-bottom:14px}
+.rsec-t{font-size:10px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.rbadge{background:var(--bll);color:var(--bl);font-size:9px;padding:2px 8px;border-radius:99px;font-weight:600}
+.rl{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid #F3F4F6;font-size:12px;gap:6px}
+.rl:last-child{border-bottom:none}
+.rn{color:var(--tx);flex:1;line-height:1.3}.rf{color:var(--mu);font-size:10px;flex-shrink:0}.rp{font-weight:600;color:var(--bl);white-space:nowrap}
+.rtot{background:var(--bll);border-radius:var(--rs);padding:14px;margin-top:10px;border:1px solid #C7D9F0}
+.rtot-r{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px}
+.rtot-r:last-child{margin-bottom:0}
+.rtot-l{font-size:13px;font-weight:600;color:var(--bl)}
+.rtot-v{font-size:26px;font-weight:700;color:var(--bl)}
+.rtot-s{font-size:11px;color:var(--bl2);opacity:.8}
+.rtot-sv{font-size:13px;font-weight:600;color:var(--bl2)}
+
+/* INDICATEUR SITE */
+.site-chip{display:inline-flex;align-items:center;gap:5px;background:var(--bll);color:var(--bl);padding:4px 10px;border-radius:99px;font-size:11px;font-weight:500;margin-bottom:12px}
+
+/* NAV */
+.nav{position:fixed;bottom:0;left:0;right:0;background:var(--wh);border-top:1px solid var(--br);padding:10px 14px 26px;display:flex;gap:9px;z-index:100;box-shadow:0 -4px 16px rgba(0,0,0,.08)}
+.nbk{padding:13px 18px;border:1.5px solid var(--br);border-radius:var(--r);font-size:13px;font-weight:500;background:var(--wh);color:var(--tx);cursor:pointer;font-family:'Poppins',sans-serif;flex-shrink:0}
+.nnx{flex:1;padding:13px;border:none;border-radius:var(--r);font-size:14px;font-weight:600;background:var(--bl);color:#fff;cursor:pointer;font-family:'Poppins',sans-serif}
+.nsend{flex:1;padding:13px;border:none;border-radius:var(--r);font-size:14px;font-weight:600;background:var(--grn);color:#fff;cursor:pointer;font-family:'Poppins',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px}
+.note{font-size:11px;color:var(--mu);background:var(--bg);padding:9px 11px;border-radius:var(--rs);margin-top:8px;line-height:1.6;font-weight:300}
+.toast{position:fixed;top:72px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;padding:9px 20px;border-radius:99px;font-size:12px;font-weight:500;z-index:200;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap;max-width:90vw}
+.toast.on{opacity:1}
+.ok-card{background:var(--grn-l);border:2px solid #86EFAC;border-radius:var(--r);padding:24px;text-align:center;margin-bottom:14px}
+.ok-icon{font-size:48px;margin-bottom:10px}
+.ok-title{font-size:18px;font-weight:700;color:#15803D;margin-bottom:6px}
+.ok-sub{font-size:13px;color:#166534;font-weight:300;line-height:1.6}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/docx@9.5.0/build/index.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+</head>
+<body>
+<div class="hdr">
+  <div class="hdr-inner">
+    <div class="hdr-logo" style="display:flex;align-items:center;gap:8px"><img src="https://raw.githubusercontent.com/spalvieri-ns/linea-devis/main/logo.jpg" style="height:28px;filter:brightness(0) invert(1)" onerror="this.style.display='none'"><span style="opacity:.8;font-weight:300;font-size:13px" id="agenceName"></span></div>
+    <div class="steps" id="steps"></div>
+  </div>
+  <div class="hdr-lbl" id="hlbl"></div>
+</div>
+<div class="toast" id="toast"></div>
+<div class="content">
+
+<!-- ══ ÉTAPE 1 : CLIENT & SITE ══ -->
+<div class="step on" id="s0">
+  <p class="stit">Client & site</p>
+  <p class="ssub">Remplis ce que tu as observé sur site — le reste est optionnel</p>
+
+  <div class="card">
+    <div class="ctit">Type de bien</div>
+    <div class="type-grid">
+      <div class="tbtn" onclick="setType('residence',this)">
+        <span class="ico">🏢</span>
+        <span class="lbl">Résidence</span>
+        <span class="sub">Copropriété</span>
+      </div>
+      <div class="tbtn" onclick="setType('immeuble',this)">
+        <span class="ico">🏠</span>
+        <span class="lbl">Immeuble</span>
+        <span class="sub">Petit collectif</span>
+      </div>
+      <div class="tbtn" onclick="setType('bureaux',this)">
+        <span class="ico">💼</span>
+        <span class="lbl">Bureaux</span>
+        <span class="sub">Tertiaire pur</span>
+      </div>
+      <div class="tbtn" onclick="setType('property',this)">
+        <span class="ico">🏛️</span>
+        <span class="lbl">Immeuble bureaux</span>
+        <span class="sub">Mixte / Property</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ctit">Client / Syndic</div>
+    <div class="f"><label>Nom</label><input type="text" id="cNom" placeholder=""></div>
+    <div class="f"><label>Adresse</label><input type="text" id="cAdr" placeholder=""></div>
+    <div class="f"><label>Ville</label><input type="text" id="cVil" placeholder=""></div>
+    </div>
+
+  <div class="card">
+    <div class="ctit">Site d'intervention</div>
+    <div class="f"><label>Nom du site</label><input type="text" id="sNom" placeholder=""></div>
+    <div class="f"><label>Adresse</label><input type="text" id="sAdr" placeholder=""></div>
+    <div class="f"><label>Ville</label><input type="text" id="sVil" placeholder=""></div>
+    <div class="f">
+      <label>Caractéristiques du bâtiment</label>
+      <div class="f-3">
+        <div><label>Allées</label><input type="number" id="nbAllees" placeholder="" min="0"></div>
+        <div><label>Étages</label><input type="number" id="nbEtages" placeholder="" min="0"></div>
+        <div><label>Boîtes aux lettres</label><input type="number" id="nbBal" placeholder="" min="0"></div>
+      </div>
+    </div>
+    <div class="f"><label>Observations terrain (accès, digicode, particularités…)</label>
+      <textarea id="sNot" rows="3" placeholder=""></textarea>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ÉTAPE 2 : ZONES & PRESTATIONS ══ -->
+<div class="step" id="s1">
+  <p class="stit">Zones & prestations</p>
+  <p class="ssub">Tout est présélectionné — coche, ajuste ou ajoute selon le site</p>
+  <div class="site-chip" id="siteChip"></div>
+  <div id="zonesContainer"></div>
+  <button class="add-zone" onclick="addZoneLibre()">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Ajouter une zone
+  </button>
+</div>
+
+<!-- ══ ÉTAPE 3 : TAUX + RECAP + ENVOI ══ -->
+<div class="step" id="s2">
+  <p class="stit">Tarification & envoi</p>
+  <p class="ssub">Ajuste les taux puis envoie la fiche à la collaboratrice</p>
+
+  <div class="card">
+    <div class="taux-blk">
+      <div class="taux-header">
+        <div class="taux-lbl">Prestations courantes</div>
+        <div class="taux-tag">Nettoyage récurrent</div>
+      </div>
+      <div class="taux-big"><span class="tval" id="tC">28</span><span class="tunit">€/h HT</span></div>
+      <input type="range" id="slC" min="21" max="35" value="28" step="1"
+        oninput="document.getElementById('tC').textContent=this.value;calcRecap()">
+      <div class="trange"><span>21 €</span><span>35 €</span></div>
+    </div>
+    <div class="tsep"></div>
+    <div class="taux-blk">
+      <div class="taux-header">
+        <div class="taux-lbl">Prestations exceptionnelles</div>
+        <div class="taux-tag">Ponctuel / périodique</div>
+      </div>
+      <div class="taux-big"><span class="tval" id="tE">39</span><span class="tunit">€/h HT</span></div>
+      <input type="range" id="slE" min="37" max="42" value="39" step="1"
+        oninput="document.getElementById('tE').textContent=this.value;calcRecap()">
+      <div class="trange"><span>37 €</span><span>42 €</span></div>
+    </div>
+  </div>
+
+  <div class="card" id="consoCard" style="display:none">
+    <div class="ctit">Consommables sanitaires — à chiffrer fournisseur</div>
+    <table class="ctable">
+      <tr><th>Désignation</th><th>Qté</th></tr>
+      <tr><td>Distributeur essuie-mains rouleaux</td><td style="text-align:center"><input class="cqty" data-c="essuie-mains" type="number" min="0" placeholder="0"></td></tr>
+      <tr><td>Distributeur savon</td><td style="text-align:center"><input class="cqty" data-c="savon" type="number" min="0" placeholder="0"></td></tr>
+      <tr><td>Distributeur PH</td><td style="text-align:center"><input class="cqty" data-c="ph" type="number" min="0" placeholder="0"></td></tr>
+      <tr><td>Poubelle hygiène féminine</td><td style="text-align:center"><input class="cqty" data-c="hygiene" type="number" min="0" placeholder="0"></td></tr>
+      <tr><td>Diffuseur parfum Airactiv</td><td style="text-align:center"><input class="cqty" data-c="diffuseur" type="number" min="0" placeholder="0"></td></tr>
+      <tr><td>Poubelle à pédale 40L</td><td style="text-align:center"><input class="cqty" data-c="poubelle" type="number" min="0" placeholder="0"></td></tr>
+    </table>
+  </div>
+
+  <div class="card"><div class="ctit">Récapitulatif devis</div><div id="recap"></div></div>
+
+  <div class="card">
+    <div class="ctit">Envoi à la collaboratrice</div>
+    <div class="f"><label>Email</label><input type="email" id="emailDest" value="info@linea-nettoyage.com"></div>
+    <div class="note">📱 "Envoyer la fiche" ouvre Mail avec le récap. "Télécharger Word" génère le devis complet.</div>
+  </div>
+</div>
+
+<!-- ══ CONFIRMATION ══ -->
+<div class="step" id="s3">
+  <div class="ok-card">
+    <div class="ok-icon">✉️</div>
+    <div class="ok-title">Fiche prête !</div>
+    <div class="ok-sub">Ton appli Mail s'est ouverte.<br>Vérifie et envoie en un tap.</div>
+  </div>
+  <div class="card"><div class="ctit">Ce qui a été transmis</div><div id="confirmContent"></div></div>
+</div>
+
+</div><!-- /content -->
+<div class="nav" id="nav"></div>
+
+<script>
+// ══════════════════════════════════════════════════
+// CONFIG AGENCE (personnalisable par URL/agence)
+// ══════════════════════════════════════════════════
+const AGENCE = {
+  nom: 'Lyon',
+  tauxCourantDefaut: 28,
+  tauxExcepDefaut: 39,
+  email: 'info@linea-nettoyage.com',
+};
+document.getElementById('agenceName').textContent = '— ' + AGENCE.nom;
+
+// ══════════════════════════════════════════════════
+// DONNÉES ZONES PAR TYPE
+// ══════════════════════════════════════════════════
+const DUR_OPTS = [
+  {l:'—',v:0},{l:'5 min',v:.08},{l:'10 min',v:.16},{l:'15 min',v:.25},
+  {l:'20 min',v:.33},{l:'30 min',v:.5},{l:'45 min',v:.75},
+  {l:'1 h',v:1},{l:'1h30',v:1.5},{l:'2 h',v:2},{l:'3 h',v:3},{l:'4 h',v:4}
+];
+
+const FA = {
+  '6x/semaine':312,'5x/semaine':260,'3x/semaine':156,'2x/semaine':104,
+  '1x/semaine':52,'1x/15 jours':26,'1x/mois':12,'1x/trimestre':4,
+  '4x/an':4,'2x/an':2,'1x/an':1
+};
+const FC = ['6x/semaine','5x/semaine','3x/semaine','2x/semaine','1x/semaine','1x/15 jours','1x/mois','1x/trimestre'];
+const FE = ['1x/mois','1x/trimestre','4x/an','2x/an','1x/an'];
+
+const ZONES = {
+  residence: [
+    {id:'hall',     ico:'🚪', name:'Hall & Entrée',          dur:.5,  freq:'6x/semaine', cat:'courant',
+     prests:['Balayage et lessivage du hall','Traces de doigts sur vitres et miroirs','Platine digicode et interphone','Boîtes aux lettres','Enlèvement des prospectus','Paillasson']},
+    {id:'ascenseur',ico:'🛗', name:'Ascenseur',               dur:.25, freq:'6x/semaine', cat:'courant',
+     prests:['Parois, boutons, miroirs et sol']},
+    {id:'paliers',  ico:'🏗️', name:'Paliers d\'étages',       dur:.5,  freq:'1x/semaine', cat:'courant',
+     prests:['Balayage et lessivage des paliers','Aspiration des paliers','Plinthes, interrupteurs, rebords de fenêtres','Toiles d\'araignées']},
+    {id:'escaliers',ico:'🪜', name:'Escaliers',               dur:.5,  freq:'1x/mois',   cat:'courant',
+     prests:['Balayage et lessivage des escaliers (RDC au dernier étage)','Dépoussiérage des rampes']},
+    {id:'descentes', ico:'⬇️', name:'Descentes & sas sous-sols', dur:.25, freq:'1x/semaine', cat:'courant',
+     prests:['Balayage et lessivage des descentes d\'escaliers','Sas d\'accès sous-sols']},
+    {id:'poubelles',ico:'🗑️', name:'Local poubelle',          dur:.25, freq:'1x/semaine', cat:'courant',
+     prests:['Nettoyage et désinfection du local','Désinfection des bacs roulants (par roulement)']},
+    {id:'sorties',  ico:'♻️', name:'Sortie / Rentrée poubelles', dur:.16, freq:'6x/semaine', cat:'courant',
+     prests:['Sortie des poubelles','Rentrée des poubelles','Maintien en propreté du local']},
+    {id:'abords',   ico:'🌿', name:'Abords extérieurs',        dur:.25, freq:'1x/semaine', cat:'courant',
+     prests:['Piquetage des détritus aux abords immédiats']},
+    {id:'signalement',ico:'📋', name:'Suivi & Signalement',   dur:0,   freq:'6x/semaine', cat:'courant',
+     prests:['Inspection des parties communes','Signalement des anomalies par mail','Vérification et changement ampoules/néons (facturation en sus)']},
+    {id:'vitres',   ico:'🪟', name:'Parties vitrées',          dur:.5,  freq:'2x/an',     cat:'excep',
+     prests:['Lessivage des vitres des parties communes (selon accessibilité)','Lessivage des vitres du hall d\'entrée']},
+    {id:'parkings', ico:'🚗', name:'Parkings & Garages',       dur:0,   freq:'1x/an',     cat:'excep',
+     prests:['Piquetage des détritus dans les parkings','Aspiration des aires de circulation des garages','Balayage de la rampe d\'accès garages']},
+    {id:'excep',    ico:'⭐', name:'Prestations spéciales',    dur:0,   freq:'1x/an',     cat:'excep',
+     prests:['Shampoing moquette des paliers d\'étages','Nettoyage des blocs de secours et bacs à sable','Enlèvement traces de doigts sur portes communes et techniques','Réunion qualité avec le CS + rapport à la régie']},
+  ],
+  immeuble: [
+    {id:'hall',     ico:'🚪', name:'Hall & Entrée',            dur:.5,  freq:'1x/semaine', cat:'courant',
+     prests:['Balayage et lessivage du hall','Traces de doigts sur vitres et miroirs','Platine digicode et interphone','Boîtes aux lettres','Enlèvement des prospectus']},
+    {id:'paliers',  ico:'🏗️', name:'Paliers d\'étages',         dur:.5,  freq:'1x/semaine', cat:'courant',
+     prests:['Balayage des paliers','Lessivage des paliers (1x/mois)','Aspiration des paliers','Plinthes, interrupteurs, rebords','Toiles d\'araignées']},
+    {id:'escaliers',ico:'🪜', name:'Escaliers',                 dur:.5,  freq:'1x/semaine', cat:'courant',
+     prests:['Balayage des escaliers','Lessivage des escaliers (1x/mois)','Dépoussiérage des rampes']},
+    {id:'signalement',ico:'📋', name:'Suivi & Signalement',     dur:0,   freq:'1x/semaine', cat:'courant',
+     prests:['Inspection des parties communes','Signalement des anomalies par mail','Vérification ampoules/néons (facturation en sus)']},
+    {id:'vitres',   ico:'🪟', name:'Parties vitrées',            dur:.5,  freq:'2x/an',     cat:'excep',
+     prests:['Lessivage des vitres des parties communes (selon accessibilité)']},
+  ],
+  bureaux: [
+    {id:'bureaux',  ico:'🖥️', name:'Bureaux & Postes de travail', dur:1, freq:'3x/semaine', cat:'courant',
+     prests:['Dépoussiérage humide des postes (salles de réunion) — 3x/sem','Dépoussiérage et désinfection des postes (bureaux) — 1x/sem','Vidage des corbeilles à papiers (tri sélectif)','Désinfection interrupteurs et poignées de portes','Traces de doigts sur portes et cloisons vitrées']},
+    {id:'cuisine',  ico:'🍽️', name:'Cuisine / Espace pause',    dur:.5,  freq:'3x/semaine', cat:'courant',
+     prests:['Frigo, micro-ondes, évier, plan de travail, tables']},
+    {id:'sanitaires',ico:'🚻', name:'Sanitaires',                dur:.5,  freq:'3x/semaine', cat:'courant',
+     prests:['Cuvette, abattant, bloc sanitaire, lavabo et sol','Approvisionnement des consommables (fournis par nous)']},
+    {id:'sols',     ico:'🧹', name:'Sols',                       dur:.5,  freq:'3x/semaine', cat:'courant',
+     prests:['Aspiration et lessivage sols durs : cuisine + WC + circulation + réunions','Aspiration des sols moquettés — bureaux — 1x/sem']},
+    {id:'mobilier', ico:'🪑', name:'Mobilier & Rangements',      dur:.25, freq:'1x/mois',   cat:'courant',
+     prests:['Essuyage et dépoussiérage des chaises, fauteuils','Dépoussiérage des armoires, consoles','Dépoussiérage des rebords de fenêtres','Dépoussiérage des plinthes','Toiles d\'araignées']},
+    {id:'vitres-bur',ico:'🪟', name:'Vitrerie',                  dur:1,   freq:'4x/an',     cat:'excep',
+     prests:['Lessivage des vitres intérieures et cloisons vitrées']},
+    {id:'moquette', ico:'🟫', name:'Shampoing moquette',         dur:2,   freq:'1x/an',     cat:'excep',
+     prests:['Shampoing des moquettes bureaux']},
+  ],
+  property: [
+    {id:'hall',     ico:'🚪', name:'Hall & Entrée',             dur:.5,  freq:'5x/semaine', cat:'courant',
+     prests:['Balayage et lessivage du hall','Traces de doigts sur vitres et miroirs','Platine digicode et interphone','Boîtes aux lettres','Enlèvement des prospectus','Paillasson','Cendriers']},
+    {id:'ascenseur',ico:'🛗', name:'Ascenseur',                  dur:.25, freq:'5x/semaine', cat:'courant',
+     prests:['Parois, boutons, miroirs et sol']},
+    {id:'paliers',  ico:'🏗️', name:'Paliers d\'étages',          dur:.5,  freq:'5x/semaine', cat:'courant',
+     prests:['Balayage et lessivage des paliers','Aspiration des paliers','Plinthes, interrupteurs, rebords','Toiles d\'araignées']},
+    {id:'sanitaires',ico:'🚻', name:'Sanitaires',                dur:.5,  freq:'5x/semaine', cat:'courant',
+     prests:['Cuvette, abattant, lavabo et sol','Approvisionnement consommables']},
+    {id:'descentes', ico:'⬇️', name:'Descentes & sas sous-sols', dur:.25, freq:'1x/semaine', cat:'courant',
+     prests:['Balayage et lessivage des descentes d\'escaliers','Sas d\'accès sous-sols']},
+    {id:'escaliers',ico:'🪜', name:'Escaliers',                  dur:.5,  freq:'1x/mois',   cat:'courant',
+     prests:['Balayage et lessivage des escaliers (RDC au dernier étage)','Dépoussiérage des rampes']},
+    {id:'abords',   ico:'🌿', name:'Abords extérieurs',           dur:.16, freq:'1x/semaine', cat:'courant',
+     prests:['Piquetage des détritus aux abords immédiats']},
+    {id:'signalement',ico:'📋', name:'Suivi & Signalement',      dur:0,   freq:'5x/semaine', cat:'courant',
+     prests:['Inspection des parties communes','Signalement des anomalies par mail','Désinfection interrupteurs — 1x/sem']},
+    {id:'vitres',   ico:'🪟', name:'Parties vitrées',             dur:.5,  freq:'1x/mois',   cat:'excep',
+     prests:['Lessivage des vitres du hall (jusqu\'à 3m max)']},
+    {id:'vmc',      ico:'💨', name:'VMC & Technique',             dur:.25, freq:'4x/an',     cat:'excep',
+     prests:['Dépoussiérage des bouches VMC']},
+    {id:'parkings', ico:'🚗', name:'Parkings & Garages',          dur:2,   freq:'1x/an',     cat:'excep',
+     prests:['Aspiration des aires de circulation des garages','Nettoyage blocs de secours et bacs à sable']},
+  ],
+};
+
+// ══════════════════════════════════════════════════
+// ÉTAT
+// ══════════════════════════════════════════════════
+let CUR = 0;
+let ST = {
+  type:'', cNom:'', cAdr:'', cVil:'', refC:'',
+  sNom:'', sAdr:'', sVil:'', nbAllees:'', nbEtages:'', nbBal:'', sNot:'',
+  zones: [] // [{id, name, ico, active, dur, freq, cat, prests:[{name,on,freqOverride}]}]
+};
+let zFreeIdx = 0;
+const SLBLS = ['Étape 1/3 — Client & site', 'Étape 2/3 — Zones & prestations', 'Étape 3/3 — Tarification & envoi'];
+
+// ══════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════
+function updNav() {
+  document.getElementById('hlbl').textContent = CUR < 3 ? SLBLS[CUR] : 'Fiche transmise';
+  const sb = document.getElementById('steps');
+  sb.innerHTML = [0,1,2].map(i =>
+    `<div class="stp ${i===CUR?'cur':i<CUR?'done':''}"></div>`
+  ).join('');
+  const nav = document.getElementById('nav');
+  if (CUR === 2) {
+    nav.innerHTML = `
+      <button class="nbk" onclick="goTo(1)">← Retour</button>
+      <button class="nsend" onclick="doSend()" style="flex:1">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+        Envoyer fiche
+      </button>
+      <button id="btnWord" class="nnx" onclick="generateWord()" style="flex:1;background:#1B3D6F;display:flex;align-items:center;justify-content:center;gap:6px">
+        📄 Devis Word
+      </button>`;
+  } else if (CUR === 3) {
+    nav.innerHTML = `<button class="nnx" style="background:#6B7280" onclick="reset()">+ Nouveau devis</button>`;
+  } else {
+    nav.innerHTML = `
+      ${CUR>0?'<button class="nbk" onclick="goTo(CUR-1)">← Retour</button>':''}
+      <button class="nnx" onclick="goNext()">Suivant →</button>`;
+  }
+}
+
+function goNext() {
+  saveStep();
+  if (CUR === 0) {
+    if (!ST.type) { toast('Sélectionne un type de bien'); return; }
+    if (!ST.sNom.trim() && !ST.cNom.trim()) { toast('Indique au moins le nom du site ou du client'); return; }
+  }
+  goTo(CUR + 1);
+}
+
+function goTo(n) {
+  saveStep();
+  document.getElementById('s'+CUR).classList.remove('on');
+  CUR = n;
+  document.getElementById('s'+CUR).classList.add('on');
+  if (CUR === 1) renderZones();
+  if (CUR === 2) { calcRecap(); showConsoIfNeeded(); }
+  updNav();
+  window.scrollTo(0,0);
+}
+
+function saveStep() {
+  if (CUR === 0) {
+    ['cNom','cAdr','cVil','refC','sNom','sAdr','sVil',
+     'nbAllees','nbEtages','nbBal','sNot'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) ST[id] = el.value.trim();
+    });
+  }
+}
+
+function gv(id) { const e = document.getElementById(id); return e ? e.value.trim() : ''; }
+function showToast(msg) { toast(msg); }
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('on');
+  setTimeout(() => t.classList.remove('on'), 2500);
+}
+
+// ══════════════════════════════════════════════════
+// TYPE
+// ══════════════════════════════════════════════════
+function setType(type, el) {
+  ST.type = type;
+  ST.zones = []; // reset zones si changement de type
+  document.querySelectorAll('.tbtn').forEach(b => b.classList.remove('on'));
+  el.classList.add('on');
+}
+
+// ══════════════════════════════════════════════════
+// ZONES
+// ══════════════════════════════════════════════════
+function renderZones() {
+  // Chip site
+  const chip = document.getElementById('siteChip');
+  const parts = [ST.sNom, ST.nbAllees?ST.nbAllees+' allée(s)':'', ST.nbEtages?ST.nbEtages+' étage(s)':'', ST.nbBal?ST.nbBal+' BAL':''].filter(Boolean);
+  chip.textContent = parts.join(' · ') || 'Site non nommé';
+
+  // Init zones si première fois
+  if (ST.zones.length === 0) {
+    const defs = ZONES[ST.type] || [];
+    ST.zones = defs.map(z => ({
+      ...z,
+      active: true,
+      prests: z.prests.map(p => ({ name: p, on: true, freqOverride: '' }))
+    }));
+  }
+
+  const c = document.getElementById('zonesContainer');
+  c.innerHTML = '';
+  ST.zones.forEach((z, zi) => renderZone(c, z, zi));
+}
+
+function renderZone(container, z, zi) {
+  const freqList = z.cat === 'excep' ? FE : FC;
+  const div = document.createElement('div');
+  div.className = 'zone' + (z.active ? ' active' : '');
+  div.id = 'zone_' + zi;
+
+  const durInputId = 'dur_input_'+zi;
+
+  const freqOpts = freqList.map(f =>
+    `<option${f===z.freq?' selected':''}>${f}</option>`
+  ).join('');
+
+  const prestsHtml = z.prests.map((p, pi) => {
+    const pFreqOpts = freqList.map(f =>
+      `<option${f===(p.freqOverride||z.freq)?' selected':''}>${f}</option>`
+    ).join('');
+    return `<div class="pit">
+      <div class="pchk${p.on?' on':''}" onclick="togglePrest(${zi},${pi})"></div>
+      <span class="pname" onclick="togglePrest(${zi},${pi})">${p.name}</span>
+      <select class="pfreq" onchange="setPrestFreq(${zi},${pi},this.value)">${pFreqOpts}</select>
+    </div>`;
+  }).join('');
+
+  div.innerHTML = `
+    <div class="zone-hdr" onclick="toggleZone(${zi})">
+      <div class="zchk${z.active?' on':''}"></div>
+      <span class="zico">${z.ico||'📍'}</span>
+      <div class="zinfo">
+        <span class="zname">${z.name}</span>
+        <span class="zsub">${z.freq} · ${z.dur>0?durLabel(z.dur):'Durée à définir'}</span>
+      </div>
+      <span class="zarrow${z.active?' open':''}">▾</span>
+    </div>
+    <div class="zbody${z.active?' on':''}">
+      <div class="zdur-section">
+        <div class="zdur-lbl">Durée par passage (h décimal — ex: 0.5 = 30min, 1.5 = 1h30)</div>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:4px">
+          <input type="number" id="${durInputId}" min="0" step="0.08"
+            value="${z.dur||''}" placeholder="—"
+            style="width:100px;padding:8px 10px;border:1.5px solid var(--br);border-radius:var(--rs);font-size:16px;font-family:'Poppins',sans-serif;background:var(--wh);color:var(--tx)"
+            oninput="setZoneDurInput(${zi},this.value)">
+          <span style="font-size:12px;color:var(--mu)">heures &nbsp;·&nbsp; ${z.dur>0?durHuman(z.dur):'à définir'}</span>
+        </div>
+      </div>
+      <div class="zfreq-section">
+        <span class="zfreq-lbl">Fréquence</span>
+        <select onchange="setZoneFreq(${zi},this.value)">${freqOpts}</select>
+      </div>
+      <button class="prest-toggle" onclick="toggleDetail(${zi})">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        Détail des prestations
+      </button>
+      <div class="prest-pane" id="detail_${zi}">
+        ${prestsHtml}
+        <button class="add-prest" onclick="addPrestToZone(${zi})">+ Ajouter une prestation</button>
+      </div>
+      <button class="add-prest" style="color:#EF4444;margin-top:6px" onclick="removeZone(${zi})">× Supprimer cette zone</button>
+    </div>`;
+  container.appendChild(div);
+}
+
+function durLabel(v) { return durHuman(v); }
+
+function toggleZone(zi) {
+  ST.zones[zi].active = !ST.zones[zi].active;
+  // Re-render just this zone
+  const c = document.getElementById('zonesContainer');
+  const old = document.getElementById('zone_'+zi);
+  const newDiv = document.createElement('div');
+  c.insertBefore(newDiv, old);
+  old.remove();
+  newDiv.id = 'tmp';
+  const tmp = document.createElement('div');
+  c.insertBefore(tmp, document.getElementById('tmp').nextSibling);
+  document.getElementById('tmp').remove();
+  renderZoneInPlace(zi);
+  calcRecap();
+}
+
+function renderZoneInPlace(zi) {
+  const c = document.getElementById('zonesContainer');
+  const allZones = c.querySelectorAll('.zone');
+  // Simple re-render of all zones
+  c.innerHTML = '';
+  ST.zones.forEach((z, i) => renderZone(c, z, i));
+}
+
+function setZoneDurInput(zi, val) {
+  const v = parseFloat(val) || 0;
+  ST.zones[zi].dur = v;
+  // Update hint label
+  const inp = document.getElementById('dur_input_'+zi);
+  if (inp) {
+    const hint = inp.nextElementSibling;
+    if (hint) hint.textContent = 'heures · ' + (v>0 ? durHuman(v) : 'à définir');
+  }
+  // Update subtitle
+  const sub = document.querySelector('#zone_'+zi+' .zsub');
+  if (sub) sub.textContent = ST.zones[zi].freq + ' · ' + (v>0 ? durHuman(v) : 'Durée à définir');
+  calcRecap();
+}
+
+function durHuman(v) {
+  if (!v || v === 0) return '—';
+  const h = Math.floor(v);
+  const m = Math.round((v - h) * 60);
+  if (h === 0) return m + ' min';
+  if (m === 0) return h + 'h';
+  return h + 'h' + String(m).padStart(2,'0');
+}
+
+function setZoneFreq(zi, val) {
+  ST.zones[zi].freq = val;
+  const sub = document.querySelector('#zone_'+zi+' .zsub');
+  if (sub) sub.textContent = val + ' · ' + (ST.zones[zi].dur>0?durLabel(ST.zones[zi].dur):'Durée à définir');
+  calcRecap();
+}
+
+function togglePrest(zi, pi) {
+  ST.zones[zi].prests[pi].on = !ST.zones[zi].prests[pi].on;
+  const pchk = document.querySelector(`#zone_${zi} #detail_${zi} .pit:nth-child(${pi+1}) .pchk`);
+  if (pchk) pchk.classList.toggle('on', ST.zones[zi].prests[pi].on);
+  calcRecap();
+}
+
+function setPrestFreq(zi, pi, val) {
+  ST.zones[zi].prests[pi].freqOverride = val;
+  calcRecap();
+}
+
+function toggleDetail(zi) {
+  const pane = document.getElementById('detail_'+zi);
+  const btn = pane.previousElementSibling;
+  pane.classList.toggle('on');
+  if (pane.classList.contains('on')) btn.innerHTML = btn.innerHTML.replace('▾','▴').replace('Détail','Masquer');
+  else btn.innerHTML = btn.innerHTML.replace('▴','▾').replace('Masquer','Détail');
+}
+
+function addPrestToZone(zi) {
+  const name = prompt('Nom de la prestation :');
+  if (!name) return;
+  ST.zones[zi].prests.push({ name, on: true, freqOverride: '' });
+  renderZoneInPlace(zi);
+  calcRecap();
+}
+
+function removeZone(zi) {
+  ST.zones.splice(zi, 1);
+  renderZoneInPlace(0);
+  calcRecap();
+}
+
+function addZoneLibre() {
+  const name = prompt('Nom de la zone :');
+  if (!name) return;
+  ST.zones.push({
+    id: 'free_'+(++zFreeIdx), ico:'📍', name,
+    dur: 0, freq: '1x/semaine', cat: 'courant',
+    active: true, prests: []
+  });
+  const c = document.getElementById('zonesContainer');
+  renderZone(c, ST.zones[ST.zones.length-1], ST.zones.length-1);
+}
+
+// ══════════════════════════════════════════════════
+// TAUX & RECAP
+// ══════════════════════════════════════════════════
+function showConsoIfNeeded() {
+  const show = ST.type === 'bureaux' || ST.type === 'property';
+  document.getElementById('consoCard').style.display = show ? 'block' : 'none';
+}
+
+const f2 = n => new Intl.NumberFormat('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2}).format(n);
+
+function calcRecap() {
+  const tC = parseInt(document.getElementById('slC').value)||28;
+  const tE = parseInt(document.getElementById('slE').value)||39;
+  let ligC = [], ligE = [];
+  let totCAn = 0, totEAn = 0;
+
+  ST.zones.filter(z => z.active && z.dur > 0).forEach(z => {
+    const taux = z.cat === 'excep' ? tE : tC;
+    const freq = z.freq;
+    const fa = FA[freq] || 1;
+    const montAn = z.dur * fa * taux;
+    const montMois = montAn / 12;
+    const ligne = { name: z.name, ico: z.ico||'', freq, mois: montMois, dur: z.dur };
+    if (z.cat === 'excep') { ligE.push(ligne); totEAn += montAn; }
+    else { ligC.push(ligne); totCAn += montAn; }
+  });
+
+  const totAn = totCAn + totEAn;
+  const totMois = totAn / 12;
+  const totTTC = totMois * 1.2;
+
+  let html = '';
+  if (ligC.length) {
+    html += `<div class="rsec"><div class="rsec-t">Nettoyage courant <span class="rbadge">${tC} €/h</span></div>`;
+    ligC.forEach(l => html += `<div class="rl"><span class="rn">${l.ico} ${l.name}</span><span class="rf">${l.freq} · ${durLabel(l.dur)}</span><span class="rp">${f2(l.mois)} €/m</span></div>`);
+    html += `</div>`;
+  }
+  if (ligE.length) {
+    html += `<div class="rsec"><div class="rsec-t">Prestations exceptionnelles <span class="rbadge">${tE} €/h</span></div>`;
+    ligE.forEach(l => html += `<div class="rl"><span class="rn">${l.ico} ${l.name}</span><span class="rf">${l.freq} · ${durLabel(l.dur)}</span><span class="rp">${f2(l.mois)} €/m</span></div>`);
+    html += `</div>`;
+  }
+  if (!ligC.length && !ligE.length) {
+    html = '<p style="font-size:12px;color:var(--mu);text-align:center;padding:16px 0">Aucune zone active avec durée définie</p>';
+  }
+  html += `
+    <div class="rtot">
+      <div class="rtot-r"><span class="rtot-l">Total mensuel HT</span><span class="rtot-v">${f2(totMois)} €</span></div>
+      <div class="rtot-r"><span class="rtot-s">Courant ${f2(totCAn/12)} € · Excep. ${f2(totEAn/12)} €</span></div>
+      <div class="rtot-r"><span class="rtot-s">TTC (TVA 20%)</span><span class="rtot-sv">${f2(totTTC)} €/mois</span></div>
+    </div>`;
+  document.getElementById('recap').innerHTML = html;
+  window._R = { ligC, ligE, totCAn, totEAn, totMois, totTTC, tC, tE };
+}
+
+// ══════════════════════════════════════════════════
+// ENVOI EMAIL
+// ══════════════════════════════════════════════════
+function doSend() {
+  const email = document.getElementById('emailDest').value.trim();
+  if (!email) { toast('Indique l\'email de la collaboratrice'); return; }
+  const R = window._R || {};
+  const today = new Date().toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'});
+  const typeLabel = {residence:'Copropriété — Résidence',immeuble:'Copropriété — Immeuble',bureaux:'Bureaux',property:'Immeuble de bureaux'}[ST.type]||ST.type;
+
+  const subject = `Fiche devis — ${ST.sNom||ST.cNom||'Site'} — ${today}`;
+  let body = `FICHE DE SAISIE DEVIS — LINÉA PROPRETÉ (Agence ${AGENCE.nom})\n`;
+  body += `${'═'.repeat(55)}\n`;
+  body += `Date visite : ${today}\n`;
+  body += `Type de bien : ${typeLabel}\n\n`;
+
+  body += `CLIENT\n${'─'.repeat(40)}\n`;
+  if (ST.cNom) body += `Nom         : ${ST.cNom}\n`;
+  if (ST.cAdr) body += `Adresse     : ${ST.cAdr}\n`;
+  if (ST.cVil) body += `Ville       : ${ST.cVil}\n`;
+  if (ST.refC) body += `Réf. client : ${ST.refC}\n`;
+  body += `\nSITE\n${'─'.repeat(40)}\n`;
+  if (ST.sNom) body += `Nom     : ${ST.sNom}\n`;
+  if (ST.sAdr) body += `Adresse : ${ST.sAdr}\n`;
+  if (ST.sVil) body += `Ville   : ${ST.sVil}\n`;
+  const carac = [ST.nbAllees?`${ST.nbAllees} allée(s)`:'', ST.nbEtages?`${ST.nbEtages} étage(s)`:'', ST.nbBal?`${ST.nbBal} boîtes aux lettres`:''].filter(Boolean);
+  if (carac.length) body += `Bâtiment : ${carac.join(' · ')}\n`;
+  if (ST.sNot) body += `Observations : ${ST.sNot}\n`;
+  body += `\n`;
+
+  // Zones par catégorie
+  const zonesC = ST.zones.filter(z => z.active && z.cat === 'courant');
+  const zonesE = ST.zones.filter(z => z.active && z.cat === 'excep');
+
+  if (zonesC.length) {
+    body += `NETTOYAGE COURANT (taux : ${R.tC||28} €/h)\n${'─'.repeat(40)}\n`;
+    zonesC.forEach(z => {
+      const durStr = z.dur>0 ? durLabel(z.dur)+'/passage' : 'Durée non définie';
+      const fa = FA[z.freq]||1;
+      const montMois = z.dur>0 ? f2(z.dur*fa*(R.tC||28)/12) : '—';
+      body += `\n${z.ico||'•'} ${z.name.toUpperCase()}\n`;
+      body += `   Fréquence : ${z.freq} · Durée : ${durStr}\n`;
+      body += `   Montant mensuel HT : ${montMois} €\n`;
+      const prestsOn = z.prests.filter(p => p.on);
+      if (prestsOn.length) {
+        prestsOn.forEach(p => {
+          const freq = p.freqOverride && p.freqOverride !== z.freq ? ` (${p.freqOverride})` : '';
+          body += `   – ${p.name}${freq}\n`;
+        });
+      }
+    });
+    body += `\n   → Sous-total courant : ${f2((R.totCAn||0)/12)} €/mois HT\n\n`;
+  }
+
+  if (zonesE.length) {
+    body += `PRESTATIONS EXCEPTIONNELLES (taux : ${R.tE||39} €/h)\n${'─'.repeat(40)}\n`;
+    zonesE.forEach(z => {
+      const durStr = z.dur>0 ? durLabel(z.dur) : 'Durée non définie';
+      const fa = FA[z.freq]||1;
+      const montMois = z.dur>0 ? f2(z.dur*fa*(R.tE||39)/12) : '—';
+      body += `\n${z.ico||'•'} ${z.name.toUpperCase()}\n`;
+      body += `   Fréquence : ${z.freq} · Durée : ${durStr}\n`;
+      body += `   Montant mensuel HT (lissé) : ${montMois} €\n`;
+      const prestsOn = z.prests.filter(p => p.on);
+      if (prestsOn.length) prestsOn.forEach(p => body += `   – ${p.name}\n`);
+    });
+    body += `\n   → Sous-total exceptionnel : ${f2((R.totEAn||0)/12)} €/mois HT\n\n`;
+  }
+
+  body += `RÉCAPITULATIF FINANCIER\n${'─'.repeat(40)}\n`;
+  body += `Total mensuel HT  : ${f2(R.totMois||0)} €\n`;
+  body += `Total mensuel TTC : ${f2(R.totTTC||0)} € (TVA 20%)\n\n`;
+
+  // Consommables
+  let consoLines = [];
+  document.querySelectorAll('.cqty').forEach(inp => {
+    const qty = parseInt(inp.value)||0;
+    if (qty > 0) consoLines.push(`   • ${inp.closest('tr').cells[0].textContent.trim()} : ${qty}`);
+  });
+  if (consoLines.length) {
+    body += `CONSOMMABLES SANITAIRES (à chiffrer fournisseur)\n${'─'.repeat(40)}\n`;
+    body += consoLines.join('\n') + '\n\n';
+  }
+
+  body += `${'─'.repeat(40)}\n`;
+  body += `Fiche générée — App Linéa Propreté · Agence ${AGENCE.nom}\n`;
+  body += `N. SPALVIERI — 06 67 05 13 51\n`;
+
+  const mailto = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  window.location.href = mailto;
+
+  setTimeout(() => {
+    document.getElementById('s2').classList.remove('on');
+    CUR = 3;
+    document.getElementById('s3').classList.add('on');
+    const activeZones = ST.zones.filter(z => z.active);
+    document.getElementById('confirmContent').innerHTML = `
+      <div class="rl"><span class="rn">Site</span><span class="rp">${ST.sNom||ST.cNom||'—'}</span></div>
+      <div class="rl"><span class="rn">Type</span><span class="rp">${typeLabel}</span></div>
+      <div class="rl"><span class="rn">Zones actives</span><span class="rp">${activeZones.length}</span></div>
+      <div class="rl"><span class="rn">Total mensuel HT</span><span class="rp">${f2(R.totMois||0)} €</span></div>
+      <div class="rl"><span class="rn">Envoyé à</span><span class="rp">${email}</span></div>`;
+    updNav();
+  }, 800);
+}
+
+// ══════════════════════════════════════════════════
+// RESET
+// ══════════════════════════════════════════════════
+function reset() {
+  ST = { type:'',cNom:'',cAdr:'',cVil:'',refC:'',sNom:'',sAdr:'',sVil:'',nbAllees:'',nbEtages:'',nbBal:'',sNot:'',zones:[] };
+  zFreeIdx = 0;
+  document.querySelectorAll('.tbtn').forEach(b => b.classList.remove('on'));
+  ['cNom','cAdr','cVil','refC','sNom','sAdr','sVil','nbAllees','nbEtages','nbBal','sNot'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  document.getElementById('s3').classList.remove('on');
+  CUR = 0;
+  document.getElementById('s0').classList.add('on');
+  updNav(); window.scrollTo(0,0);
+}
+
+// ══════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════
+document.getElementById('slC').value = AGENCE.tauxCourantDefaut;
+document.getElementById('tC').textContent = AGENCE.tauxCourantDefaut;
+document.getElementById('slE').value = AGENCE.tauxExcepDefaut;
+document.getElementById('tE').textContent = AGENCE.tauxExcepDefaut;
+document.getElementById('emailDest').value = AGENCE.email;
+updNav();
+
+// ══════════════════════════════════════════════════
+// GÉNÉRATEUR WORD — style Mayflower
+// ══════════════════════════════════════════════════
+async function generateWord() {
+  const btn = document.getElementById('btnWord');
+  if (btn) { btn.disabled = true; btn.textContent = 'Génération…'; }
+  showToast('Génération du document Word…');
+
+  try {
+    const D = window.docx;
+    if (!D) throw new Error('Librairie docx non chargée');
+
+    // Logo buffer
+    // Charge le logo depuis GitHub
+    const logoResp = await fetch('https://raw.githubusercontent.com/spalvieri-ns/linea-devis/main/logo.jpg');
+    const logoBuf = new Uint8Array(await logoResp.arrayBuffer());
+
+    // Collect data
+    const tC = parseInt(document.getElementById('slC').value) || 28;
+    const tE = parseInt(document.getElementById('slE').value) || 39;
+    const R = window._R || {};
+
+    // State alias
+    const s = ST;
+
+    // ── CONSTANTS ──────────────────────────────────
+    const BLUE = '1B3D6F', WHITE = 'FFFFFF', BLACK = '1A1A1A';
+    const A4W = 11906, A4H = 16838, MGL = 1134, MGR = 1134, MGT = 720;
+    const CW = A4W - MGL - MGR;
+    const f2 = n => new Intl.NumberFormat('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2}).format(n);
+
+    // ── HELPERS ────────────────────────────────────
+    const nb = () => ({style:D.BorderStyle.NONE,size:0,color:'FFFFFF'});
+    const bd = (c,sz=4) => ({style:D.BorderStyle.SINGLE,size:sz,color:c});
+    const noBrd = () => ({top:nb(),bottom:nb(),left:nb(),right:nb()});
+    const allBrd = (c,sz=4) => ({top:bd(c,sz),bottom:bd(c,sz),left:bd(c,sz),right:bd(c,sz)});
+
+    const ru = (text, o={}) => new D.TextRun({
+      text:text||'', font:'Calibri', size:o.sz||20,
+      bold:o.b||false, color:o.c||BLACK, italics:o.i||false,
+      underline:o.u?{type:D.UnderlineType.SINGLE}:undefined
+    });
+
+    const pa = (ch, o={}) => {
+      const kids = typeof ch==='string' ? [ru(ch,o)] : ch;
+      return new D.Paragraph({children:kids,
+        alignment:o.al||D.AlignmentType.LEFT,
+        spacing:{before:o.bf||0,after:o.af||0},
+        border:o.border||undefined,
+        tabStops:o.tabs||[]});
+    };
+
+    const ep = (bf=0,af=80) => new D.Paragraph({children:[ru('')],spacing:{before:bf,after:af}});
+
+    const cl = (ch, o={}) => new D.TableCell({
+      children:Array.isArray(ch)?ch:[ch],
+      width:{size:o.w||1000,type:D.WidthType.DXA},
+      shading:o.bg?{fill:o.bg,type:D.ShadingType.CLEAR}:undefined,
+      borders:o.brd||noBrd(),
+      margins:{top:o.mt||80,bottom:o.mb||80,left:o.ml||140,right:o.mr||140},
+      verticalAlign:o.va||D.VerticalAlign.CENTER,
+      columnSpan:o.sp||undefined
+    });
+
+    const rw = cells => new D.TableRow({children:cells});
+    const pb = () => new D.Paragraph({children:[new D.PageBreak()]});
+
+    const band = text => new D.Table({
+      width:{size:CW,type:D.WidthType.DXA},columnWidths:[CW],
+      rows:[rw([cl(pa(text,{b:true,sz:26,c:WHITE,al:D.AlignmentType.CENTER}),
+        {w:CW,bg:BLUE,brd:allBrd(BLUE),mt:140,mb:140})])]
+    });
+
+    const perHead = text => pa([ru(text,{b:true,c:BLUE,sz:22})],{
+      border:{bottom:{style:D.BorderStyle.DOUBLE,size:6,color:BLUE,space:4}},bf:200,af:80});
+
+    // Logo header
+    const makeHdr = () => new D.Header({children:[
+      new D.Paragraph({
+        children:[new D.ImageRun({data:logoBuf,transformation:{width:260,height:70},type:'jpg'})],
+        alignment:D.AlignmentType.CENTER,
+        spacing:{before:60,after:100},
+        border:{bottom:{style:D.BorderStyle.SINGLE,size:8,color:BLUE,space:6}}
+      })
+    ]});
+
+    const makeFtr = () => new D.Footer({children:[pa(
+      [ru('72 rue Tronchet 69006 LYON \u2013 T. 04.37.47.84.90 \u2013 F. 04.37.47.84.99 \u2013 info@linea-nettoyage.com',{sz:14,c:'666666'})],
+      {al:D.AlignmentType.CENTER,border:{top:{style:D.BorderStyle.SINGLE,size:4,color:'CCCCCC',space:4}},bf:60}
+    )]});
+
+    const SP = {page:{size:{width:A4W,height:A4H},margin:{top:MGT,right:MGR,bottom:1300,left:MGL}}};
+    const typeLabel = {residence:'Copropriété — Résidence',immeuble:'Copropriété — Immeuble',bureaux:'Bureaux',property:'Immeuble de bureaux'}[s.type]||s.type||'';
+    const today = new Date().toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'});
+
+    // ── PAGE 1 : IDENTIFICATION ─────────────────────
+    const p1 = () => {
+      const ch = [];
+      ch.push(ep(60,0));
+      ch.push(band('DEVIS ET CONTRAT DE NETTOYAGE'));
+      ch.push(ep(160,0));
+      const LW=2200, VW=CW-LW;
+      [
+        ['VOS R\u00c9F.\u202f:', [pa(s.cNom||'',{b:true,sz:22}), pa(s.cAdr||'',{sz:20}), pa(s.cVil||'',{sz:20})]],
+        ['SITE\u202f:',         [pa(s.sNom||'',{b:true,sz:22}), pa(s.sAdr||'',{sz:20}), pa(s.sVil||'',{sz:20})]],
+      ].forEach(([lbl,vals]) => {
+        ch.push(new D.Table({width:{size:CW,type:D.WidthType.DXA},columnWidths:[LW,VW],rows:[rw([
+          cl(pa([ru(lbl,{b:true,c:BLUE,sz:22})]),{w:LW,brd:noBrd(),mt:120,mb:20,ml:0}),
+          cl(vals,{w:VW,brd:noBrd(),mt:120,mb:20}),
+        ])]}));
+        ch.push(ep(60,0));
+      });
+
+      // Caractéristiques bâtiment
+      const carac = [s.nbAllees?s.nbAllees+' allée(s)':'', s.nbEtages?s.nbEtages+' étage(s)':'', s.nbBal?s.nbBal+' boîtes aux lettres':''].filter(Boolean);
+      if (carac.length) {
+        ch.push(new D.Table({width:{size:CW,type:D.WidthType.DXA},columnWidths:[LW,VW],rows:[rw([
+          cl(pa([ru('B\u00c2TIMENT\u202f:',{b:true,c:BLUE,sz:22})]),{w:LW,brd:noBrd(),mt:80,mb:20,ml:0}),
+          cl(pa(carac.join(' · '),{sz:20}),{w:VW,brd:noBrd(),mt:80,mb:20}),
+        ])]}));
+        ch.push(ep(60,0));
+      }
+
+      ch.push(new D.Table({width:{size:CW,type:D.WidthType.DXA},columnWidths:[LW,VW],rows:[rw([
+        cl(pa([ru('OBJET\u202f:',{b:true,c:BLUE,sz:22})]),{w:LW,brd:noBrd(),mt:100,mb:20,ml:0}),
+        cl(pa("Devis d\u2019entretien des parties communes",{sz:20}),{w:VW,brd:noBrd(),mt:100,mb:20}),
+      ])]}));
+      ch.push(ep(200,0));
+
+      ch.push(pa([ru('VOTRE CONTACT',{b:true,c:BLUE,sz:22})],
+        {border:{bottom:{style:D.BorderStyle.SINGLE,size:8,color:BLUE,space:4}},af:80}));
+      ch.push(ep(80,0));
+      ch.push(pa('N. SPALVIERI',{sz:20,af:40}));
+      ch.push(pa('\u260e\u00a0 06 67 05 13 51',{sz:20,af:40}));
+      ch.push(pa([ru('developpement@linea-nettoyage.com',{sz:20,c:BLUE})],{af:160}));
+      ch.push(pa([ru('UNE \u00c9QUIPE \u00c0 VOTRE \u00c9COUTE\u202f:',{b:true,c:BLUE,sz:22})],{af:80}));
+      ['N. SPALVIERI\u202f: D\u00e9veloppement/exploitation','A. BOUSBAA\u202f: Responsable d\u2019exploitation',
+       '7 responsables de sites','5 agents polyvalents','Un service relamping',
+       'Une \u00e9quipe administrative','Un service qualit\u00e9'
+      ].forEach(e => ch.push(pa([ru('\u2013\u00a0\u00a0',{c:BLUE,sz:20}),ru(e,{sz:20})],{indent:{left:400},bf:30,af:30})));
+      ch.push(ep(80,0));
+      ch.push(pa('Lyon, le '+today,{sz:18,c:'888888',al:D.AlignmentType.RIGHT}));
+      return ch;
+    };
+
+    // ── PAGE 2 : DEVIS / ZONES ──────────────────────
+    const p2 = () => {
+      const ch = [];
+      ch.push(ep(40,0));
+      ch.push(band('DEVIS'));
+      ch.push(ep(120,0));
+
+      const zonesActives = s.zones.filter(z => z.active);
+      // Regrouper par fréquence
+      const byFreq = {};
+      zonesActives.forEach(z => {
+        if (!byFreq[z.freq]) byFreq[z.freq] = [];
+        byFreq[z.freq].push(z);
+      });
+
+      const freqOrder = ['6x/semaine','5x/semaine','3x/semaine','2x/semaine','1x/semaine',
+        '1x/15 jours','1x/mois','1x/trimestre','4x/an','2x/an','1x/an'];
+
+      freqOrder.forEach(freq => {
+        const zones = byFreq[freq];
+        if (!zones || !zones.length) return;
+        ch.push(perHead('P\u00c9RIODICIT\u00c9\u202f: ' + freq.toUpperCase()));
+        zones.forEach(z => {
+          const prestsOn = z.prests.filter(p => p.on);
+          if (!prestsOn.length) {
+            ch.push(pa([ru('\u2013\u00a0\u00a0',{b:true,c:BLUE,sz:20}),ru(z.name,{sz:20})],{indent:{left:360},bf:36,af:36}));
+          } else {
+            prestsOn.forEach(p => {
+              const freq2 = p.freqOverride && p.freqOverride!==z.freq ? ' ('+p.freqOverride+')' : '';
+              ch.push(pa([ru('\u2013\u00a0\u00a0',{b:true,c:BLUE,sz:20}),ru(p.name+freq2,{sz:20})],{indent:{left:360},bf:32,af:32}));
+            });
+          }
+        });
+        ch.push(ep(80,0));
+      });
+
+      // NOTA
+      ch.push(ep(120,0));
+      ch.push(pa([ru('NOTA\u202f:',{b:true,sz:20,u:true})],{af:120}));
+      ["Affichage des plannings et coordonn\u00e9es des responsables dans le hall d\u2019entr\u00e9e. Les produits & mat\u00e9riels d\u2019entretien sont fournis par notre entreprise.",
+       "En cas de neige, la priorit\u00e9 sera donn\u00e9e au d\u00e9neigement et salage des voies d\u2019acc\u00e8s (facturation de la fourniture en sus).",
+       "Tarification ampoules LED\u202f: 6,97\u00a0\u20ac HT soit 8,36\u00a0\u20ac TTC \u2014 D\u00e9placement & changement\u202f: 30,00\u00a0\u20ac HT",
+       "Tarification d\u00e9barrassage des encombrants\u202f: 40,00\u00a0\u20ac HT le m\u00b3",
+       "Nos tarifs sont valables pendant 3 mois et peuvent \u00eatre ajust\u00e9s en fonction des changements li\u00e9s aux textes de lois."
+      ].forEach((n,i) => ch.push(pa([ru('\u25aa\u00a0',{c:BLUE,sz:18}),ru(n,{sz:17,i:i===4})],
+        {indent:{left:300,hanging:240},bf:60,af:60})));
+      ch.push(pa([],{border:{bottom:{style:D.BorderStyle.DOUBLE,size:6,color:BLUE,space:4}},bf:200,af:0}));
+      return ch;
+    };
+
+    // ── PAGE 3 : TARIFICATION ───────────────────────
+    const p3 = () => {
+      const ch = [];
+      ch.push(ep(60,0));
+      ch.push(pa([ru('TARIFICATION MENSUELLE',{b:true,c:BLUE,sz:24})],
+        {border:{bottom:{style:D.BorderStyle.DOUBLE,size:6,color:BLUE,space:4}},af:120}));
+      ch.push(ep(60,0));
+
+      const TAB = CW - 200;
+      const tarLine = (label, montant, bold=false) => pa([
+        ru(label,{sz:20,b:bold}),
+        new D.TextRun({text:'\t',font:'Calibri',size:20}),
+        ru(montant,{sz:20,b:bold})
+      ],{tabs:[{type:D.TabStopType.RIGHT,position:TAB,leader:D.TabStopType.DOT}]});
+
+      const zonesC = s.zones.filter(z => z.active && z.cat==='courant' && z.dur>0);
+      const zonesE = s.zones.filter(z => z.active && z.cat==='excep' && z.dur>0);
+
+      if (zonesC.length) {
+        ch.push(pa([ru('\u2022\u00a0',{sz:22,c:BLUE}),ru('NETTOYAGE\u202f:',{b:true,sz:22,u:true,c:BLUE})],
+          {indent:{left:160},bf:80,af:60}));
+        ch.push(tarLine('    Montant HT ',f2((R.totCAn||0)/12)+'\u00a0\u20ac'));
+        ch.push(ep(120,0));
+      }
+
+      zonesE.forEach(z => {
+        const fa = FA[z.freq]||1;
+        const montMois = z.dur * fa * tE / 12;
+        ch.push(pa([ru('\u2022\u00a0',{sz:22,c:BLUE}),ru(z.name.toUpperCase()+'\u202f:',{b:true,sz:22,u:true,c:BLUE})],
+          {indent:{left:160},bf:80,af:60}));
+        ch.push(tarLine('    Montant HT ',f2(montMois)+'\u00a0\u20ac'));
+        ch.push(ep(100,0));
+      });
+
+      ch.push(ep(80,0));
+      ch.push(pa([ru('TARIFICATION MENSUELLE TOTALE',{b:true,c:BLUE,sz:24})],
+        {border:{bottom:{style:D.BorderStyle.DOUBLE,size:6,color:BLUE,space:4}},af:120}));
+      ch.push(ep(60,0));
+      ch.push(tarLine('Montant HT ',f2(R.totMois||0)+'\u00a0\u20ac'));
+      ch.push(ep(60,0));
+      ch.push(tarLine('Montant TTC (TVA 20\u202f%) ',f2(R.totTTC||0)+'\u00a0\u20ac',true));
+      return ch;
+    };
+
+    // ── PAGE 4 : CONTRAT ────────────────────────────
+    const p4 = () => {
+      const ch = [];
+      ch.push(ep(40,0));
+      ch.push(band('CONTRAT'));
+      ch.push(ep(160,0));
+      const HW=CW/2-200|0, GAP=400;
+
+      const leftBlock = [
+        pa([ru('Entre les soussign\u00e9s',{b:true,i:true,sz:20})],{af:60}),
+        pa(s.cNom||'[Client]',{sz:20,af:20}),
+        pa(s.cAdr||'',{sz:20,af:20}),
+        pa(s.cVil||'',{sz:20,af:20}),
+        pa([ru('(Ci-apr\u00e8s le \u00ab\u00a0Client\u00a0\u00bb)',{i:true,sz:20})],{af:120}),
+        pa([ru('Et LINEA PROPRETE',{i:true,b:true,sz:20})],{af:20}),
+        pa([ru('68 rue Tronchet \u2013 69006 LYON',{i:true,sz:20})],{af:20}),
+        pa([ru('(Ci-apr\u00e8s le \u00ab\u00a0Prestataire\u00a0\u00bb)',{i:true,sz:20})],{af:120}),
+        pa([ru('Le dossier\u202f: '+(s.sNom||''),{i:true,sz:20})],{af:0}),
+      ];
+
+      const arts = buildArticles(D,pa,ru,ep,BLUE);
+      const mid = Math.ceil(arts.length/2);
+
+      ch.push(new D.Table({width:{size:CW,type:D.WidthType.DXA},columnWidths:[HW,GAP,HW],rows:[rw([
+        cl(leftBlock,{w:HW,brd:noBrd(),ml:0,mt:0,mb:0}),
+        cl([ep(0,0)],{w:GAP,brd:noBrd()}),
+        cl(arts.slice(0,mid),{w:HW,brd:noBrd(),mr:0,mt:0,mb:0}),
+      ])]}));
+      ch.push(ep(80,0));
+      ch.push(new D.Table({width:{size:CW,type:D.WidthType.DXA},columnWidths:[HW,GAP,HW],rows:[rw([
+        cl(arts.slice(mid),{w:HW,brd:noBrd(),ml:0,mt:0,mb:0}),
+        cl([ep(0,0)],{w:GAP,brd:noBrd()}),
+        cl([ep(0,0)],{w:HW,brd:noBrd(),mr:0}),
+      ])]}));
+
+      ch.push(ep(200,0));
+      ch.push(pa('Fait \u00e0 Lyon, le '+today,{sz:20,af:200}));
+      const SW=HW;
+      ch.push(new D.Table({width:{size:CW,type:D.WidthType.DXA},columnWidths:[SW,GAP,SW],rows:[rw([
+        cl([pa([ru('Le Client',{b:true,sz:20,c:BLUE})],{af:100}),pa('Signature\u202f:',{sz:18,af:200}),
+            pa([ru('(Bon pour accord)',{sz:15,i:true,c:'888888'})]),],
+          {w:SW,brd:allBrd('CCCCCC'),mt:100,mb:100,ml:120}),
+        cl([ep(0,0)],{w:GAP,brd:noBrd()}),
+        cl([pa([ru('Lin\u00e9a Propret\u00e9',{b:true,sz:20,c:BLUE})],{af:100}),pa('N. SPALVIERI',{sz:18,af:40}),pa('Signature\u202f:',{sz:18,af:200})],
+          {w:SW,brd:allBrd('CCCCCC'),mt:100,mb:100,mr:0}),
+      ])]}));
+      return ch;
+    };
+
+    // ── ARTICLES CONTRAT ────────────────────────────
+    function buildArticles(D,pa,ru,ep,BLUE) {
+      const out = [];
+      [['1. OBJET DU CONTRAT',"Le pr\u00e9sent contrat a pour objet de d\u00e9finir les conditions dans lesquelles le Prestataire s\u2019engage \u00e0 r\u00e9aliser les prestations de nettoyage des parties communes de l\u2019immeuble, telles que stipul\u00e9es au Devis."],
+       ['2. EXECUTION DES PRESTATIONS',"Les modalit\u00e9s d\u2019ex\u00e9cution rel\u00e8vent exclusivement du Prestataire. La bonne ex\u00e9cution est appr\u00e9ci\u00e9e au regard du r\u00e9sultat obtenu. En aucun cas le Client ne pourra donner instruction au personnel du Prestataire."],
+       ['3. CONDITIONS TARIFAIRES',"Les conditions tarifaires sont d\u00e9termin\u00e9es dans le Devis. Le prix inclut la main-d\u2019\u0153uvre, le mat\u00e9riel et les produits d\u2019entretien."],
+       ['4. DUR\u00c9E DU CONTRAT',"Le contrat entre en vigueur \u00e0 sa date de signature pour une dur\u00e9e d\u2019une ann\u00e9e, tacitement renouvelable, sauf d\u00e9nonciation par LRAR trois (3) mois avant l\u2019\u00e9ch\u00e9ance."],
+       ['5. P\u00c9RIODE D\u2019ESSAI',"Une p\u00e9riode d\u2019essai d\u2019un (1) mois s\u2019applique \u00e0 compter de la signature."],
+       ['6. R\u00c8GLEMENT DES FACTURES',"R\u00e8glement par virement bancaire. Tout retard entra\u00eene l\u2019application d\u2019int\u00e9r\u00eats de retard et d\u2019une indemnit\u00e9 forfaitaire de 40 \u20ac par facture impay\u00e9e."],
+       ['7. INDEXATION',"En cas de tacite reconduction, les tarifs seront index\u00e9s sur l\u2019\u00ab\u00a0Index Propret\u00e9\u00a0\u00bb de la F\u00e9d\u00e9ration des Entreprises de Propret\u00e9."],
+       ['8. ASSURANCES',"Assur\u00e9 aupr\u00e8s de AXA France (Cabinet LAFOND ROULLET \u2013 Police N\u00b03370347204). Tout dommage doit \u00eatre signal\u00e9 par LRAR sous 48 heures."],
+       ['9. JOURS F\u00c9RI\u00c9S',"Les prestations co\u00efncidant avec un jour f\u00e9ri\u00e9 ne sont ni d\u00e9cal\u00e9es ni d\u00e9duites de la facture."],
+       ['10. TRANSFERT DE SALARI\u00c9S',"En vertu de la Convention collective nationale des entreprises de propret\u00e9, les contrats de travail des salari\u00e9s affect\u00e9s doivent \u00eatre repris par le nouveau prestataire en cas de changement."],
+       ['11. CLAUSE R\u00c9SOLUTOIRE',"Le Prestataire pourra r\u00e9silier le contrat par LRAR en cas de non-paiement. Le Client sera redevable de l\u2019int\u00e9gralit\u00e9 des factures jusqu\u2019au terme du contrat."],
+      ].forEach(([t,x]) => {
+        out.push(pa([ru(t,{b:true,i:true,sz:18,c:BLUE})],{bf:120,af:60}));
+        out.push(pa(x,{sz:16,al:D.AlignmentType.BOTH,af:60}));
+      });
+      return out;
+    }
+
+    // ── ASSEMBLE DOCUMENT ───────────────────────────
+    const H = makeHdr(), F = makeFtr();
+    const doc = new D.Document({
+      styles:{default:{document:{run:{font:'Calibri',size:20}}}},
+      sections:[
+        {properties:SP, headers:{default:H}, footers:{default:F}, children:[...p1(), pb()]},
+        {properties:SP, headers:{default:H}, footers:{default:F}, children:[...p2(), pb()]},
+        {properties:SP, headers:{default:H}, footers:{default:F}, children:[...p3(), pb()]},
+        {properties:SP, headers:{default:H}, footers:{default:F}, children:p4()},
+      ]
+    });
+
+    const buf = await D.Packer.toBuffer(doc);
+    const blob = new Blob([buf], {type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+    const fname = ('Devis_'+(s.sNom||s.cNom||'Site')+'_'+new Date().toLocaleDateString('fr-FR').replace(/\//g,'-')+'.docx').replace(/[^a-zA-Z0-9_.\-]/g,'_');
+    saveAs(blob, fname);
+    showToast('✓ Devis téléchargé !');
+
+  } catch(e) {
+    showToast('Erreur : '+e.message);
+    console.error(e);
+  }
+
+  if (btn) { btn.disabled = false; btn.textContent = '📄 Télécharger le devis Word'; }
+}
+
+</script>
+</body>
+</html>
